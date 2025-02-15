@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid()) @map("_id") @db.ObjectId
+  email        String    @unique
+  name         String
+  password     String
+  phone        String
+  otp          String?
+  otpExpire    DateTime?
+  refreshToken String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Coin {
+  id                 String         @id @default(auto()) @map("_id") @db.ObjectId
+  Cm_id              String         @unique
+  name               String
+  symbol             String
+  slug               String
+  cmc_rank           Int
+  num_market_pairs   Int
+  circulating_supply Float
+  total_supply       Float
+  max_supply         Float?
+  tags               String[]
+  price              Float
+  volume_24h         Float
+  percent_change_1h  Float
+  percent_change_24h Float
+  percent_change_7d  Float
+  last_updated       DateTime
+  platform           String?
+  change_24h         Float?
+  volume             Float?
+  market_cap         Float?
+  buyVolume          Float?
+  sellVolume         Float?
+  timestamp          DateTime       @default(now())
+  PriceHistory       PriceHistory[]
+  Watchlist          Watchlist[]
+}
+
+model PriceHistory {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  timestamp DateTime
+  open      Float
+  high      Float
+  low       Float
+  close     Float
+  volume    Float
+  timeframe String
+  Coin      Coin?    @relation(fields: [coinId], references: [id])
+  coinId    String?  @db.ObjectId
+}
+
+model Watchlist {
+  id     String @id @default(cuid()) @map("_id") @db.ObjectId
+  coin   Coin   @relation(fields: [coinId], references: [id])
+  coinId String @db.ObjectId
+  // nếu bạn muốn làm thêm xác thực người dùng, thì thêm field userId
+}
